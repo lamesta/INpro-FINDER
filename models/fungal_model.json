@@ -1,0 +1,62 @@
+{
+ "name": "fungal",
+ "description": "Fungal INA, Mortierellaceae lineage I: N-terminal region profile INAf_N (signal peptide to first repeat, 10 sequences, 4 species) and Cys-rich C-terminal cap profile INAf_Ccap (last 45 aa, 14 sequences, 4 species); the bacterial cap profile INA_C60 is accepted only when it reaches the protein end. Lineage II INA-like proteins have no conserved terminal domains and are not modelled.",
+ "hmm_files": [
+  "INAf_N.hmm",
+  "INAf_Ccap.hmm",
+  "INA_C60.hmm"
+ ],
+ "roles": [
+  {
+   "role": "N",
+   "profile": "INAf_N",
+   "rule": {
+    "hmm_from_max": 10,
+    "hmm_to_min": 250,
+    "ievalue_max": 1e-10,
+    "env_from_max": 400
+   }
+  },
+  {
+   "role": "C",
+   "profile": "INAf_Ccap",
+   "rule": {
+    "hmm_from_max": 5,
+    "hmm_to_min": 40,
+    "ievalue_max": 1e-10,
+    "last_aa": 10
+   }
+  },
+  {
+   "role": "C",
+   "profile": "INA_C60",
+   "rule": {
+    "hmm_from_max": 15,
+    "hmm_to_min": 50,
+    "ievalue_max": 1e-15,
+    "last_aa": 20
+   }
+  }
+ ],
+ "rules": {
+  "candidate_min_hits": 5,
+  "candidate_min_len": 300,
+  "repeat_identity_min": 0.45,
+  "intact_full_min_aa": 800,
+  "intact_short_min_aa": 500,
+  "repeat_only_min_aa": 300,
+  "locus_gap_bp": 8000,
+  "met_upstream_aa": 60,
+  "met_downstream_aa": 30,
+  "min_orf_aa": 50,
+  "met_fallback": "orf_start",
+  "max_period4_ratio": 0.75,
+  "exploratory_min_aa": 500,
+  "exploratory_identity_min": 0.45
+ },
+ "notes": {
+  "INA_C60_rule": "Accepted as the C-terminal cap only with hmm_to >= 50, i-Evalue <= 1e-15 and within the last 20 aa. INA_C60 also matches fungal lineage-I repeat units (real HMMER on 7 Mortierellaceae genomes: 35 non-terminal hits with hmm_from <= 15 and hmm_to >= 50, best i-Evalue 5.2e-9); the only known fungal bacterial-type cap (locus0026, M. claussenii) scores 2.1e-26.",
+  "met_fallback": "orf_start: when no Met lies near the first domain hit, the whole ORF is kept and start_source = ORF_start_no_Met. Fungal assemblies are fragmented and fungal genes can contain introns, so the first Met far downstream is usually not the real start.",
+  "max_period4_ratio": "Exploratory mode only (see USER_GUIDE)."
+ }
+}

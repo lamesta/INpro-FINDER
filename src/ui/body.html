@@ -1,0 +1,67 @@
+<body>
+<header>
+  <h1>INpro FINDER <span class="ver" id="verTxt"></span></h1>
+  <div class="sub">Annotation-independent search for ice-nucleation (INA) genes in genome sequences. Everything runs in this browser tab; no data leave your computer.</div>
+</header>
+<main>
+<section id="inputSec" class="panel">
+  <h2>1 · Genomes</h2>
+  <div id="drop" class="drop">
+    <b>Drop genome FASTA files here</b> or <label class="linkbtn">choose files<input type="file" id="fileIn" multiple hidden></label>
+    <div class="small">One file per genome (multi-contig FASTA; .fa .fna .fasta .fsa, .gz accepted). Optional: the matching annotation (GFF3 or GenBank) to compare with the annotated genes; custom HMMER3 profiles (.hmm).</div>
+  </div>
+  <table id="fileTab" class="tab" style="display:none"><thead><tr><th>file</th><th>size</th><th>type</th><th>annotation used</th><th></th></tr></thead><tbody></tbody></table>
+  <div id="fileMsg" class="small"></div>
+</section>
+
+<section id="modelSec" class="panel">
+  <h2>2 · Model</h2>
+  <div class="models">
+    <label class="mcard"><input type="radio" name="model" value="bacterial" checked><b>Bacterial INA</b><span id="mdesc_bacterial" class="small"></span></label>
+    <label class="mcard"><input type="radio" name="model" value="fungal"><b>Fungal INA (Mortierellaceae)</b><span id="mdesc_fungal" class="small"></span></label>
+    <label class="mcard"><input type="radio" name="model" value="custom"><b>Custom profiles</b><span class="small">Load your own HMMER3 profiles (.hmm, built with hmmbuild) and assign each one the role of N-terminal domain or C-terminal cap.</span></label>
+  </div>
+  <details id="paramBox"><summary>Parameters (defaults reproduce the published analysis)</summary>
+    <div id="profTabWrap"></div>
+    <div id="ruleGrid" class="grid"></div>
+    <div class="row"><label><input type="checkbox" id="optExplore"> exploratory: also report long ORFs with 16-aa repeats but no profile match (low confidence)</label></div>
+    <div class="row"><button id="resetParams">reset to model defaults</button></div>
+  </details>
+</section>
+
+<section id="runSec" class="panel">
+  <h2>3 · Scan</h2>
+  <div class="row"><button id="runBtn" class="primary" disabled>Scan genomes</button><button id="stopBtn" disabled>stop</button>
+    <span id="runInfo" class="small"></span></div>
+  <div id="progress"></div>
+</section>
+
+<section id="resSec" class="panel" style="display:none">
+  <h2>4 · Results</h2>
+  <div id="resHead" class="small"></div>
+  <table id="genTab" class="tab"><thead><tr><th>genome</th><th>contigs</th><th>Mb</th><th>ORFs</th><th>loci</th><th>classes</th><th>s</th></tr></thead><tbody></tbody></table>
+  <div class="row" id="filterRow"></div>
+  <table id="locTab" class="tab sortable"><thead><tr>
+    <th data-k="genome">genome</th><th data-k="locus_index">locus</th><th data-k="pos">position</th><th data-k="protein_length_aa">aa</th><th data-k="structural_class">class</th>
+    <th data-k="repeat_identity">repeat id.</th><th data-k="contig_edge">contig edge</th><th data-k="N_ievalue">N i-Evalue</th><th data-k="C_ievalue">C i-Evalue</th><th data-k="annotation_state">annotation</th></tr></thead><tbody></tbody></table>
+  <div id="detail"></div>
+  <div class="row dl"><b>Download:</b>
+    <button data-dl="tsv">loci table (.tsv)</button><button data-dl="faa">proteins (.faa)</button><button data-dl="fna">genes (.fna)</button>
+    <button data-dl="gff">GFF3</button><button data-dl="regions">loci ±20 kb (.fna)</button><button data-dl="gbk">loci ±20 kb GenBank (.zip, for clinker)</button>
+    <button data-dl="json">run record (.json)</button><button data-dl="report">save report (.html)</button></div>
+</section>
+
+<section class="panel" id="helpSec">
+  <h2>How it works</h2>
+  <div class="small help">
+    <p>Each genome is translated in all six reading frames. Every stretch of at least 50 codons between two stop codons is an ORF, whatever the annotation says. Two profile HMMs search all ORFs: one for the INA N-terminal domain and one for the C-terminal cap. The search follows HMMER 3 (local alignment, the same filters and E-values), re-implemented in JavaScript. Scores agree closely, but not exactly, with <code>hmmsearch</code>.</p>
+    <p>An ORF is an INA candidate if it carries a canonical N-terminal domain or C-terminal cap, or many weaker matches. Canonical means the domain is covered from its start, is significant and sits at the correct end of the protein. ORFs on the same strand within 8 kb form one locus. The start codon is the first Met near the first match, or the annotated start when an annotated gene ends at the same stop codon. When no Met lies near the first match, the bacterial model takes the first Met of the ORF (as in the published analysis) and the fungal model keeps the whole ORF (<i>ORF_start_no_Met</i>). The central 16-aa repeats are tested by their periodicity: identity of 16-aa blocks to their consensus.</p>
+    <p><b>Classes:</b> <i>intact, full length</i>: N domain + repeats + C cap in one ORF, ≥ 800 aa; <i>intact, 500–799 aa</i>; <i>intact, no canonical N / C</i>: one terminal domain missing; <i>interrupted</i>: N and C in different ORFs of one locus (a stop codon or frameshift, or a sequencing error); <i>fragment, N only / C only</i>; <i>repeats only</i> and <i>weak repeat match</i>: profile matches but no canonical terminal domain (low confidence).</p>
+    <p><b>Contig edge:</b> the column <i>contig edge</i> says when the ORF runs into the end of a contig without a stop codon (5′ or 3′ open). Such loci are often fragments only because the assembly is fragmented.</p>
+    <p><b>Exploratory option</b> (off by default): long ORFs without any profile match are also tested for 16-aa repeats. Repeats explained by a period of 4 aa or less (ratio of 4-aa to 16-aa identity above 0.75; INA give about 0.5) are rejected, ORFs overlapping a profile-based locus are skipped, and of overlapping ORFs in different frames only the longest is kept. These calls are hypotheses, not INA genes: see the user guide for the measured false-positive rate.</p>
+    <p>Limits: the profiles describe the known INA diversity, so proteins unrelated to known INA are not found. Six-frame translation does not splice introns: an intron-containing gene appears as separate fragments or as an interrupted locus. Start codons of unannotated genes are predictions.</p>
+  </div>
+</section>
+</main>
+<div id="tip"></div>
+<pre id="selftest"></pre>

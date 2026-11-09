@@ -1,0 +1,15 @@
+.DS_Store
+__pycache__/
+*.pyc
+node_modules/
+
+# generated output and local data — never commit
+tests/out/
+validation/
+!validation/fig_js_vs_hmmer.png
+release_*/
+models/fungal_build/
+docs/USER_GUIDE.pdf
+docs/img/arch_r1079.*
+docs/img/_arch.js
+branding/*.pdb

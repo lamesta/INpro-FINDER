@@ -1,0 +1,8 @@
+{
+  "name": "inafinder",
+  "version": "1.0.0",
+  "private": true,
+  "type": "commonjs",
+  "description": "INpro FINDER: annotation-independent search for ice-nucleation protein genes",
+  "license": "MIT"
+}
